@@ -80,13 +80,23 @@ where it makes sense to do so.
 Technical Specification
 ====================
 
-We will now describe the contents of the `<experimental/ascii>` header.
-Alternatively, these defintions could be added to the `<experimental/cctype>` header.
+We will now describe the additions to `<experimental/ascii>` and `<experimental/cctype>`.
+Alternatively, all of these defintions could be added to the `<experimental/cctype>` header.
 
 *[note-- All of these functions interpret the input character `c` as ascii, regardless of any global locale settings. --end-note]*
 
+The experimental/ascii header
+----------------------
+
+The new header `<experimental/ascii>` shall include `<experimental/cctype>` and `<cctype`.
+
+    #include <cctype>
+    #include <experimental/ccytpe>
+
 Character Checks
 -----------------------
+
+**Header**: `<experimental/ascii>`
 
 **Shared Pre-Condition**: the result is undefined if the value of `c` is not representable as `unsigned char` and is not equal to `EOF`.
 
@@ -141,6 +151,8 @@ Character Checks
 Ascii Case Conversion
 ---------------------
 
+**Header**: `<experimental/ascii>`
+
 **Shared Pre-Condition**: the result is undefined if the value of `c` is not representable as `unsigned char` and is not equal to `EOF`.
 
     constexpr int std::ascii::tolower(int c) noexcept;
@@ -153,6 +165,8 @@ Ascii Case Conversion
 
 Ascii Character Check (Inspired by POSIX)
 ---------------------
+
+**Header**: `<experimental/cctype>`
 
 *[note-- This function is defined on all integer values. --end-node]*
 
@@ -174,6 +188,8 @@ Users may need to take care to differentiate between
 Ascii digit char to int conversion (new)
 ---------------------
 
+**Header**: `<experimental/ascii>`
+
 **Shared Pre-Condition**: The result is undefined unless `std::ascii::isdigit(c) == true`
 
     constexpr int std::ascii::todigit(int c) noexcept;
@@ -188,6 +204,8 @@ Ascii digit char to int conversion (new)
 
 Ascii hex digit char to int conversion (new)
 ---------------------
+
+**Header**: `<experimental/ascii>`
 
 **Shared Pre-Condition**: The result is undefined unless `std::ascii::isxdigit(c) == true`
 
