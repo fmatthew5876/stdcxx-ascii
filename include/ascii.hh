@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cctype>
+
 namespace std {
 namespace ascii {
 
@@ -57,10 +59,6 @@ constexpr int tolower(int c) noexcept {
 
 constexpr int toupper(int c) noexcept {
   return isupper(c) ? c + ('z' - 'Z') : c;
-}
-
-constexpr bool isascii(int c) noexcept {
-  return c & 0x7F;
 }
 
 
