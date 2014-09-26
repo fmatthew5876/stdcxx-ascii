@@ -47,7 +47,8 @@ The C++ standard library currently lacks an efficient and portable
 mechanism for checking and converting ascii characters. The standard
 set of character routines in `<cctype>` such as `std::isspace()` are
 not efficient becuase they have dynamic behavior at runtime based on
-the current locale.
+the current locale. While we can easily implement these methods
+ourselves, it is tedious and error prone to do so.
 
 Supporting dynamic locales requires dynamic dispatch *(function pointer / virtual)*
 which is the most restrictive *(read: slowest)* form of branching with repect to the optimizer
