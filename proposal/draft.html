@@ -1,0 +1,250 @@
+<h1>Fast Ascii Character Manipulation</h1>
+
+<ul>
+<li>Document Number: NXXXX</li>
+<li>Date: 2014-08-20</li>
+<li>Programming Language C++, Library Working Group</li>
+<li>Reply-to: Matthew Fioravante <a href="&#109;&#x61;&#x69;l&#x74;&#x6F;:&#102;m&#x61;&#116;&#x74;&#x68;&#x65;&#x77;&#x35;&#56;&#55;&#x36;&#64;&#103;&#109;&#97;&#x69;&#x6C;&#x2E;&#x63;&#111;&#x6D;">&#102;m&#x61;&#116;&#x74;&#x68;&#x65;&#x77;&#x35;&#56;&#55;&#x36;&#64;&#103;&#109;&#97;&#x69;&#x6C;&#x2E;&#x63;&#111;&#x6D;</a></li>
+</ul>
+
+<p>The latest draft, reference header, and links to past discussions on github: </p>
+
+<ul>
+<li><a href="https://github.com/fmatthew5876/stdcxx-ascii">https://github.com/fmatthew5876/stdcxx-ascii</a></li>
+</ul>
+
+<h1>Introduction</h1>
+
+<p>This proposal adds a set of constexpr free functions for
+checking and converting ascii characters.</p>
+
+<p>This proposal is aimed for a C++ Technical Specification.</p>
+
+<h1>Impact on the standard</h1>
+
+<p>This proposal is a pure library extension.
+It adds a new header <code>&lt;ascii&gt;</code> (alternatively reuse <code>&lt;cctype&gt;</code>) with
+a new namespace <code>std::ascii</code>. It adds a set of <code>constexpr</code>
+<code>noexcept</code> free functions which mirror <code>int isspace(int ch)</code>
+functions in <code>&lt;cctype&gt;</code>. Finally, this paper also adds 2
+character digit to int conversion functions to the <code>std::ascii</code> namespace.</p>
+
+<h1>Impact on Implementations</h1>
+
+<p>Portable implementations of these functions are trivial. A full
+implementation is included in the reference header on github.</p>
+
+<h1>Motivation and Design</h1>
+
+<p>Computer software problems at their core are about transforming data.
+In many domains such as Scientific Computing, Data Mining, and Finance we often
+deal with large data files which use ascii delimeters. Ascii text data
+files are useful because they are human readable but also reasonably fast
+to parse into memory. A popular example file format is CSV files which can be exported from Microsoft Excel.</p>
+
+<p>The C++ standard library currently lacks an efficient and portable
+mechanism for checking and converting ascii characters. The standard
+set of character routines in <code>&lt;cctype&gt;</code> such as <code>std::isspace()</code> are
+not efficient becuase they have dynamic behavior at runtime based on
+the current locale.</p>
+
+<p>Supporting dynamic locales requires dynamic dispatch <em>(function pointer / virtual)</em>
+which is the most restrictive <em>(read: slowest)</em> form of branching with repect to the optimizer
+and branch optimizing/predicting hardware.
+Calling the equivalent of a virtual
+function for every character is simply unacceptable for any high
+performance parsing routine.</p>
+
+<p>Most crucially, dynamic dispatch prohibits inlining.
+On most platforms, a few comparisons is much cheaper than even a direct function call.
+Inlining also allows for the possibility of automatic vectorization by an optimizer.
+Finally, the <code>&lt;cctype&gt;</code> functions can never be <code>constexpr</code>.</p>
+
+<p>We propose an additional set of character functions which mirror
+the functions in <code>&lt;cctype&gt;</code> but are placed in the <code>std::ascii</code>
+namespace. We also propose 2 additional useful functions
+<code>todigit</code>, and <code>toxdigit</code>.</p>
+
+<h1>Technical Specification</h1>
+
+<p>We will now describe the additions to <code>&lt;experimental/ascii&gt;</code> header.
+Alternatively, all of these defintions could be added to the <code>&lt;experimental/cctype&gt;</code> header.</p>
+
+<p><em>[note-- All of these functions interpret the input character <code>c</code> as ascii, regardless of any global locale settings. --end-note]</em></p>
+
+<h2>Character Checks</h2>
+
+<pre><code>constexpr bool std::ascii:isdigit(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>c &gt;= 48 &amp;&amp; c &lt;= 57</code></p>
+
+<pre><code>constexpr bool std::ascii:isxdigit(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::isdigit(c) || (c &gt;= 65 &amp;&amp; c &lt;= 70) || (c &gt;= 97 &amp;&amp; c &lt;= 102)</code></p>
+
+<pre><code>constexpr bool std::ascii:islower(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>c &gt;= 97 &amp;&amp; c &lt;= 122</code></p>
+
+<pre><code>constexpr bool std::ascii:isupper(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>c &gt;= 65 &amp;&amp; c &lt;= 90</code></p>
+
+<pre><code>constexpr bool std::ascii:isalpha(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::islower(c) || std::ascii::isupper(c)</code></p>
+
+<pre><code>constexpr bool std::ascii:isalnum(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::isalpha(c) || std::asci::isdigit(c)</code></p>
+
+<pre><code>constexpr bool std::ascii:ispunct(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>(c &gt;= 33 &amp;&amp; c &lt;= 47) || (c &gt;= 58 &amp;&amp; c &lt;= 64) || (c &gt;= 91 &amp;&amp; c &lt;= 96) || (c &gt;= 123 &amp;&amp; c &lt;= 126)</code></p>
+
+<pre><code>constexpr bool std::ascii:isgraph(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>(c &gt;= 33 &amp;&amp; c&lt;= 126)</code></p>
+
+<pre><code>constexpr bool std::ascii:isblank(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>(c == 9 || c == 32)</code></p>
+
+<pre><code>constexpr bool std::ascii:isspace(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>(c &gt;= 9 &amp;&amp; c &lt;= 13) || c == 32)</code></p>
+
+<pre><code>constexpr bool std::ascii:isprint(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>(c &gt;= 32 &amp;&amp; c &lt;= 126)</code></p>
+
+<pre><code>constexpr bool std::ascii:iscntrl(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>(c &gt;= 0 &amp;&amp; c &lt;= 31) || c == 127</code></p>
+
+<pre><code>constexpr bool std::ascii::isascii(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>true</code> if <code>c &gt;= 0 &amp;&amp; c &lt; 128</code></p>
+
+<h3>Notes about isascii()</h3>
+
+<p>POSIX defines <code>extern "C" int isascii(int c)</code> in the global namespace. As of POSIX.1-2008,
+<code>isascii</code> has been marked obsolete because they claim that it <em>"cannot be used portably in a localized application."</em>
+[<a href="#Austin_317">Austin_317</a>]. This function doesn't make sense if the current locale is not ascii compatible.
+On the other hand, our version <code>std::ascii::isascii()</code> is well defined because it assumes the input character is ascii encoded.</p>
+
+<h3>bool return type</h3>
+
+<p>We have decided to return <code>bool</code> instead of returning
+<code>int</code> as is done by the <code>&lt;cctype&gt;</code> functions. Returning <code>bool</code> is more natural and also
+makes these functions easier to use in generic code <em>(i.e. templates, overloading, predicate functors, generic algorithms, etc..)</em>.</p>
+
+<h2>Ascii Case Conversion</h2>
+
+<pre><code>constexpr int std::ascii::tolower(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::isupper(c) ? c - 32 : c</code></p>
+
+<pre><code>constexpr int std::ascii::toupper(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::islower(c) ? c + 32 : c</code></p>
+
+<h2>Ascii digit char to int conversion (new)</h2>
+
+<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isdigit(c)</code></p>
+
+<pre><code>constexpr int std::ascii::todigit(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::isdigit(c) ? c - 48 : /* undefined */</code></p>
+
+<pre><code>constexpr int todigit(int c, int m) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::todigit(c) * m</code></p>
+
+<h2>Ascii hex digit char to int conversion (new)</h2>
+
+<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isxdigit(c)</code></p>
+
+<pre><code>constexpr int std::ascii::toxdigit(int c) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>return (c &gt;= 97 &amp;&amp; c &lt;= 102) ? return c - 97 : ((c &gt;= 65 &amp;&amp; c &lt;= 70) ? c - 65 : todigit(c));</code></p>
+
+<pre><code>constexpr int std::ascii::toxdigit(int c, int m) noexcept;
+</code></pre>
+
+<p><strong>Return</strong>: <code>std::ascii::toxdigit(c) * m</code></p>
+
+<h1>Example Usage</h1>
+
+<p>Parsing a date:</p>
+
+<pre><code>auto ymds = "20140517"
+int y = todigit(ymds[0], 1000) + todigit(ymds[1], 100) + todigit(ymds[2], 10) + todigit(ymds[3]);
+int m = todigit(ymds[4], 10) + todigit(ymds[5]);
+int d = todigit(ymds[6], 10) + todigit(ymds[7]);
+
+assert(y == 2014);
+assert(m == 5);
+assert(d == 17);
+</code></pre>
+
+<p>Converting an ascii string to upper case:</p>
+
+<pre><code>std::string s = "abcdefghi";
+std::transform(s.begin(), s.end(), std::ascii::toupper);
+</code></pre>
+
+<p>Parsing a hex string:</p>
+
+<pre><code>auto hstr = "F04E";
+int h = toxdigit(hstr[0], 0x1000) + toxdigit(hstr[1], 0x100) + toxdigit(hstr[2], 0x10) + toxdigit(hstr[3]);
+assert(h == 0xF04E);
+</code></pre>
+
+<h1>Use Cases</h1>
+
+<ul>
+<li>Date/Time string parsing</li>
+<li>Ascii text file parsers</li>
+<li>Csv file parsers</li>
+<li>Implementing user defined literals</li>
+<li>Faster character to int converstions</li>
+<li>Loading and parsing large text based datasets</li>
+</ul>
+
+<h1>Acknowledgments</h1>
+
+<ul>
+<li>Thank you to everyone one the std proposals forum.</li>
+</ul>
+
+<h1>References</h1>
+
+<ul>
+<li><a name="Austin_317"></a>[Austin_317] Minutes of September 2006 Meeting, The Open Group, Available online at <a href="http://www.opengroup.org/austin/docs/austin_317.html">http://www.opengroup.org/austin/docs/austin_317.html</a></li>
+</ul>
+
+<!--
+* <a name="N3864"></a>[N3864] Fioravante, Matthew *N3864 - A constexpr bitwise operations library for C++*, Available online at <https://github.com/fmatthew5876/stdcxx-bitops>
+* <a name="LXR"></a>[LXR] *Linux/include/linux/kernel.h* Available online at <http://lxr.free-electrons.com/source/include/linux/kernel.h#L50>
+* <a name="IsoCpp"></a>[IsoCpp] *ISO C++ standard*
+* <a name="clang"></a> *"clang" C Language Family Frontend for LLVM* Available online at <http://clang.llvm.org/>
+-->
