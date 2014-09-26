@@ -66,137 +66,101 @@ the functions in `<cctype>` but are placed in the `std::ascii`
 namespace. We also propose 2 additional useful functions
 `todigit`, and `toxdigit`.
 
-Return type for ascii checks
---------------------
-
-For the `isspace()` class of functions, we have decided to return `bool` instead of returning
-`int` as is done by the `<cctype>` functions. Returning `bool` is more natural and also
-makes these functions easier to use in generic code *(i.e. templates, overloading, predicate functors, generic algorithms, etc..)*.
-While in some cases, returning and directly testing an `int` for `!= 0` may be faster
-(e.g. `if(ch & char(0x7F)) { /* inlined isascii(ch) */ }`)
-all of these funtions are inline so the optimizer is free to remove the `int` to `bool` conversion
-where it makes sense to do so.
-
 Technical Specification
 ====================
 
-We will now describe the additions to `<experimental/ascii>` and `<experimental/cctype>`.
+We will now describe the additions to `<experimental/ascii>` header.
 Alternatively, all of these defintions could be added to the `<experimental/cctype>` header.
 
 *[note-- All of these functions interpret the input character `c` as ascii, regardless of any global locale settings. --end-note]*
 
-The experimental/ascii header
-----------------------
-
-The new header `<experimental/ascii>` shall include `<experimental/cctype>` and `<cctype`.
-
-    #include <cctype>
-    #include <experimental/ccytpe>
-
 Character Checks
 -----------------------
 
-**Header**: `<experimental/ascii>`
-
-**Shared Pre-Condition**: the result is undefined if the value of `c` is not representable as `unsigned char` and is not equal to `EOF`.
-
     constexpr bool std::ascii:isdigit(int c) noexcept;
 
-**Return**: `true` if `std::isdigit(c) == true` in the default C locale
+**Return**: `c >= 48 && c <= 57`
 
     constexpr bool std::ascii:isxdigit(int c) noexcept;
 
-**Return**: `true` if `std::isxdigit(c) == true` in the default C locale
+**Return**: `std::ascii::isdigit(c) || (c >= 65 && c <= 70) || (c >= 97 && c <= 102)`
 
     constexpr bool std::ascii:islower(int c) noexcept;
 
-**Return**: `true` if `std::islower(c) == true` in the default C locale
+**Return**: `c >= 97 && c <= 122`
 
     constexpr bool std::ascii:isupper(int c) noexcept;
 
-**Return**: `true` if `std::isupper(c) == true` in the default C locale
+**Return**: `c >= 65 && c <= 90`
 
     constexpr bool std::ascii:isalpha(int c) noexcept;
 
-**Return**: `true` if `std::isalpha(c) == true` in the default C locale
+**Return**: `std::ascii::islower(c) || std::ascii::isupper(c)`
 
     constexpr bool std::ascii:isalnum(int c) noexcept;
 
-**Return**: `true` if `std::isalnum(c) == true` in the default C locale
+**Return**: `std::ascii::isalpha(c) || std::asci::isdigit(c)`
 
     constexpr bool std::ascii:ispunct(int c) noexcept;
 
-**Return**: `true` if `std::ispunct(c) == true` in the default C locale
+**Return**: `(c >= 33 && c <= 47) || (c >= 58 && c <= 64) || (c >= 91 && c <= 96) || (c >= 123 && c <= 126)`
 
     constexpr bool std::ascii:isgraph(int c) noexcept;
 
-**Return**: `true` if `std::isgraph(c) == true` in the default C locale
+**Return**: `(c >= 33 && c<= 126)`
 
     constexpr bool std::ascii:isblank(int c) noexcept;
 
-**Return**: `true` if `std::isblank(c) == true` in the default C locale
+**Return**: `(c == 9 || c == 32)`
 
     constexpr bool std::ascii:isspace(int c) noexcept;
 
-**Return**: `true` if `std::isspace(c) == true` in the default C locale
+**Return**: `(c >= 9 && c <= 13) || c == 32)`
 
     constexpr bool std::ascii:isprint(int c) noexcept;
 
-**Return**: `true` if `std::isprint(c) == true` in the default C locale
+**Return**: `(c >= 32 && c <= 126)`
 
     constexpr bool std::ascii:iscntrl(int c) noexcept;
 
-**Return**: `true` if `std::iscntrl(c) == true` in the default C locale
+**Return**: `(c >= 0 && c <= 31) || c == 127`
+
+    constexpr bool std::ascii::isascii(int c) noexcept;
+
+**Return**: `true` if `c >= 0 && c < 128`
+
+###Notes about isascii()
+
+POSIX defines `extern "C" int isascii(int c)` in the global namespace. As of POSIX.1-2008,
+`isascii` has been marked obsolete because they claim that it *"cannot be used portably in a localized application."*
+\[[Austin\_317](#Austin_317)\]. This function doesn't make sense if the current locale is not ascii compatible.
+On the other hand, our version `std::ascii::isascii()` is well defined because it assumes the input character is ascii encoded.
+
+###bool return type
+
+We have decided to return `bool` instead of returning
+`int` as is done by the `<cctype>` functions. Returning `bool` is more natural and also
+makes these functions easier to use in generic code *(i.e. templates, overloading, predicate functors, generic algorithms, etc..)*.
 
 Ascii Case Conversion
 ---------------------
 
-**Header**: `<experimental/ascii>`
-
-**Shared Pre-Condition**: the result is undefined if the value of `c` is not representable as `unsigned char` and is not equal to `EOF`.
-
     constexpr int std::ascii::tolower(int c) noexcept;
 
-**Return**: returns `std::tolower(c)` in the default C locale
+**Return**: `std::ascii::isupper(c) ? c - 32 : c`
 
     constexpr int std::ascii::toupper(int c) noexcept;
 
-**Return**: returns `std::toupper(c)` in the default C locale
-
-Ascii Character Check (Inspired by POSIX)
----------------------
-
-**Header**: `<experimental/cctype>`
-
-*[note-- This function is defined on all integer values. --end-node]*
-
-    constexpr bool std::isascii(int c) noexcept;
-
-**Return**: `true` if `c >= 0 && c < 128`
-
-###Compatibility with POSIX
-
-POSIX defines `extern "C" int isascii(int c)` in the global namespace. As of POSIX.1-2008,
-`isascii` has been marked obsolete because they claim that it *"cannot be used portably in a localized application."*
-
-`bool std::isascii(int c)` is portable because it only checks if
-`c` is part of the basic ascii character set *(i.e. from 0 to 127, inclusive)* and
-does not supported any extended ascii character sets.
-Users may need to take care to differentiate between
-`extern "C" int isascii(int c)` and `bool std::isascii(int c)`.
+**Return**: `std::ascii::islower(c) ? c + 32 : c`
 
 Ascii digit char to int conversion (new)
 ---------------------
 
-**Header**: `<experimental/ascii>`
-
-**Shared Pre-Condition**: The result is undefined unless `std::ascii::isdigit(c) == true`
+**Shared Pre-Conditions**: The result is undefined unless `std::ascii::isdigit(c)`
 
     constexpr int std::ascii::todigit(int c) noexcept;
 
-**Return**: converts `c` from an ascii character digit to an int representation of that digit
-
-**Example Implementation**: `return (c - '0');`
+**Return**: `std::ascii::isdigit(c) ? c - 48 : /* undefined */`
 
     constexpr int todigit(int c, int m) noexcept;
 
@@ -205,15 +169,11 @@ Ascii digit char to int conversion (new)
 Ascii hex digit char to int conversion (new)
 ---------------------
 
-**Header**: `<experimental/ascii>`
-
-**Shared Pre-Condition**: The result is undefined unless `std::ascii::isxdigit(c) == true`
+**Shared Pre-Conditions**: The result is undefined unless `std::ascii::isxdigit(c)`
 
     constexpr int std::ascii::toxdigit(int c) noexcept;
 
-**Return**: converts `c` from an ascii hex character digit to an int representation of that digit
-
-**Example Implementation**: `return (c>='a' && c<='f') ? return c-'a' : ((c>='A' && c<='F') ? c-'A' : todigit(c));`
+**Return**: `return (c >= 97 && c <= 102) ? return c - 97 : ((c >= 65 && c <= 70) ? c - 65 : todigit(c));`
 
     constexpr int std::ascii::toxdigit(int c, int m) noexcept;
 
@@ -221,6 +181,8 @@ Ascii hex digit char to int conversion (new)
 
 Example Usage
 =================
+
+Parsing a date:
 
     auto ymds = "20140517"
     int y = todigit(ymds[0], 1000) + todigit(ymds[1], 100) + todigit(ymds[2], 10) + todigit(ymds[3]);
@@ -231,10 +193,17 @@ Example Usage
     assert(m == 5);
     assert(d == 17);
 
-<!-- -->
+Converting an ascii string to upper case:
 
     std::string s = "abcdefghi";
     std::transform(s.begin(), s.end(), std::ascii::toupper);
+
+Parsing a hex string:
+
+    auto hstr = "F04E";
+    int h = toxdigit(hstr[0], 0x1000) + toxdigit(hstr[1], 0x100) + toxdigit(hstr[2], 0x10) + toxdigit(hstr[3]);
+    assert(h == 0xF04E);
+    
 
 Use Cases
 ==============
@@ -252,10 +221,11 @@ Acknowledgments
 * Thank you to everyone one the std proposals forum.
 
 
-<!--
 References
 ==================
+* <a name="Austin_317"></a>[Austin\_317] Minutes of September 2006 Meeting, The Open Group, Available online at <http://www.opengroup.org/austin/docs/austin_317.html>
 
+<!--
 * <a name="N3864"></a>[N3864] Fioravante, Matthew *N3864 - A constexpr bitwise operations library for C++*, Available online at <https://github.com/fmatthew5876/stdcxx-bitops>
 * <a name="LXR"></a>[LXR] *Linux/include/linux/kernel.h* Available online at <http://lxr.free-electrons.com/source/include/linux/kernel.h#L50>
 * <a name="IsoCpp"></a>[IsoCpp] *ISO C++ standard*
