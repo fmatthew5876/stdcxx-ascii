@@ -53,6 +53,10 @@ constexpr bool iscntrl(int c) noexcept {
   return c == 0x7F || (c >= 0 && c <= 0x1F);
 }
 
+constexpr bool isascii(int c) noexcept {
+  return c & 0x7F;
+}
+
 constexpr int tolower(int c) noexcept {
   return islower(c) ? c - ('z' - 'Z') : c;
 }
