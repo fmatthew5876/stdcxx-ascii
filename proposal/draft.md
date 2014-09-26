@@ -47,8 +47,7 @@ The C++ standard library currently lacks an efficient and portable
 mechanism for checking and converting ascii characters. The standard
 set of character routines in `<cctype>` such as `std::isspace()` are
 not efficient becuase they have dynamic behavior at runtime based on
-the current locale. While we can easily implement these methods
-ourselves, it is tedious and error prone to do so.
+the current locale.
 
 Supporting dynamic locales requires dynamic dispatch *(function pointer / virtual)*
 which is the most restrictive *(read: slowest)* form of branching with repect to the optimizer
@@ -65,7 +64,8 @@ Finally, the `<cctype>` functions can never be `constexpr`.
 We propose an additional set of character functions which mirror
 the functions in `<cctype>` but are placed in the `std::ascii`
 namespace. We also propose 2 additional useful functions
-`todigit`, and `toxdigit`.
+`todigit`, and `toxdigit`. While one can easily implement these methods
+themselves, it is tedious and error prone to do so.
 
 Technical Specification
 ====================
