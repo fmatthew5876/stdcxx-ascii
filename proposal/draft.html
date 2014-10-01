@@ -4,7 +4,7 @@
 <li>Document Number: NXXXX</li>
 <li>Date: 2014-08-20</li>
 <li>Programming Language C++, Library Working Group</li>
-<li>Reply-to: Matthew Fioravante <a href="&#109;&#x61;&#x69;l&#x74;&#x6F;:&#102;m&#x61;&#116;&#x74;&#x68;&#x65;&#x77;&#x35;&#56;&#55;&#x36;&#64;&#103;&#109;&#97;&#x69;&#x6C;&#x2E;&#x63;&#111;&#x6D;">&#102;m&#x61;&#116;&#x74;&#x68;&#x65;&#x77;&#x35;&#56;&#55;&#x36;&#64;&#103;&#109;&#97;&#x69;&#x6C;&#x2E;&#x63;&#111;&#x6D;</a></li>
+<li>Reply-to: Matthew Fioravante <a href="&#109;&#97;&#105;&#108;&#116;&#111;:&#x66;&#x6D;&#x61;&#x74;&#x74;&#104;&#x65;w&#53;&#56;&#x37;&#54;&#64;g&#x6D;ai&#108;&#46;&#x63;&#x6F;m">&#x66;&#x6D;&#x61;&#x74;&#x74;&#104;&#x65;w&#53;&#56;&#x37;&#54;&#64;g&#x6D;ai&#108;&#46;&#x63;&#x6F;m</a></li>
 </ul>
 
 <p>The latest draft, reference header, and links to past discussions on github: </p>
@@ -50,7 +50,7 @@ the current locale.</p>
 
 <p>Supporting dynamic locales requires dynamic dispatch <em>(function pointer / virtual)</em>
 which is the most restrictive <em>(read: slowest)</em> form of branching with repect to the optimizer
-and branch optimizing/predicting hardware.
+and branch optimizing and predicting hardware.
 Calling the equivalent of a virtual
 function for every character is simply unacceptable for any high
 performance parsing routine.</p>
@@ -63,78 +63,106 @@ Finally, the <code>&lt;cctype&gt;</code> functions can never be <code>constexpr<
 <p>We propose an additional set of character functions which mirror
 the functions in <code>&lt;cctype&gt;</code> but are placed in the <code>std::ascii</code>
 namespace. We also propose 2 additional useful functions
-<code>todigit</code>, and <code>toxdigit</code>.</p>
+<code>todigit</code>, and <code>toxdigit</code>. While one can easily implement these methods
+themselves, it is tedious and error prone to do so.</p>
 
 <h1>Technical Specification</h1>
 
 <p>We will now describe the additions to <code>&lt;experimental/ascii&gt;</code> header.
-Alternatively, all of these defintions could be added to the <code>&lt;experimental/cctype&gt;</code> header.</p>
+Alternatively, all of these defintions could be added to the <code>&lt;experimental/cctype&gt;</code> header.
+Each function has overloads for type <code>char</code>, <code>char16_t</code>, and <code>char32_t</code>.</p>
 
-<p><em>[note-- All of these functions interpret the input character <code>c</code> as ascii, regardless of any global locale settings. --end-note]</em></p>
+<p><em>[note-- All of these functions interpret the input character <code>c</code> as ascii compatible, regardless of any global locale settings. --end-note]</em></p>
 
 <h2>Character Checks</h2>
 
-<pre><code>constexpr bool std::ascii:isdigit(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isdigit(char c) noexcept;
+constexpr bool std::ascii:isdigit(char16_t c) noexcept;
+constexpr bool std::ascii:isdigit(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>c &gt;= 48 &amp;&amp; c &lt;= 57</code></p>
 
-<pre><code>constexpr bool std::ascii:isxdigit(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isxdigit(char c) noexcept;
+constexpr bool std::ascii:isxdigit(char16_t c) noexcept;
+constexpr bool std::ascii:isxdigit(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::isdigit(c) || (c &gt;= 65 &amp;&amp; c &lt;= 70) || (c &gt;= 97 &amp;&amp; c &lt;= 102)</code></p>
 
-<pre><code>constexpr bool std::ascii:islower(int c) noexcept;
+<pre><code>constexpr bool std::ascii:islower(char c) noexcept;
+constexpr bool std::ascii:islower(char16_t c) noexcept;
+constexpr bool std::ascii:islower(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>c &gt;= 97 &amp;&amp; c &lt;= 122</code></p>
 
-<pre><code>constexpr bool std::ascii:isupper(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isupper(char c) noexcept;
+constexpr bool std::ascii:isupper(char16_t c) noexcept;
+constexpr bool std::ascii:isupper(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>c &gt;= 65 &amp;&amp; c &lt;= 90</code></p>
 
-<pre><code>constexpr bool std::ascii:isalpha(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isalpha(char c) noexcept;
+constexpr bool std::ascii:isalpha(char16_t c) noexcept;
+constexpr bool std::ascii:isalpha(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::islower(c) || std::ascii::isupper(c)</code></p>
 
-<pre><code>constexpr bool std::ascii:isalnum(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isalnum(char c) noexcept;
+constexpr bool std::ascii:isalnum(char16_t c) noexcept;
+constexpr bool std::ascii:isalnum(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::isalpha(c) || std::asci::isdigit(c)</code></p>
 
-<pre><code>constexpr bool std::ascii:ispunct(int c) noexcept;
+<pre><code>constexpr bool std::ascii:ispunct(char c) noexcept;
+constexpr bool std::ascii:ispunct(char16_t c) noexcept;
+constexpr bool std::ascii:ispunct(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>(c &gt;= 33 &amp;&amp; c &lt;= 47) || (c &gt;= 58 &amp;&amp; c &lt;= 64) || (c &gt;= 91 &amp;&amp; c &lt;= 96) || (c &gt;= 123 &amp;&amp; c &lt;= 126)</code></p>
 
-<pre><code>constexpr bool std::ascii:isgraph(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isgraph(char c) noexcept;
+constexpr bool std::ascii:isgraph(char16_t c) noexcept;
+constexpr bool std::ascii:isgraph(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>(c &gt;= 33 &amp;&amp; c&lt;= 126)</code></p>
 
-<pre><code>constexpr bool std::ascii:isblank(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isblank(char c) noexcept;
+constexpr bool std::ascii:isblank(char16_t c) noexcept;
+constexpr bool std::ascii:isblank(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>(c == 9 || c == 32)</code></p>
 
-<pre><code>constexpr bool std::ascii:isspace(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isspace(char c) noexcept;
+constexpr bool std::ascii:isspace(char16_t c) noexcept;
+constexpr bool std::ascii:isspace(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>(c &gt;= 9 &amp;&amp; c &lt;= 13) || c == 32)</code></p>
 
-<pre><code>constexpr bool std::ascii:isprint(int c) noexcept;
+<pre><code>constexpr bool std::ascii:isprint(char c) noexcept;
+constexpr bool std::ascii:isprint(char16_t c) noexcept;
+constexpr bool std::ascii:isprint(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>(c &gt;= 32 &amp;&amp; c &lt;= 126)</code></p>
 
-<pre><code>constexpr bool std::ascii:iscntrl(int c) noexcept;
+<pre><code>constexpr bool std::ascii:iscntrl(char c) noexcept;
+constexpr bool std::ascii:iscntrl(char16_t c) noexcept;
+constexpr bool std::ascii:iscntrl(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>(c &gt;= 0 &amp;&amp; c &lt;= 31) || c == 127</code></p>
 
-<pre><code>constexpr bool std::ascii::isascii(int c) noexcept;
+<pre><code>constexpr bool std::ascii::isascii(char c) noexcept;
+constexpr bool std::ascii::isascii(char16_t c) noexcept;
+constexpr bool std::ascii::isascii(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>true</code> if <code>c &gt;= 0 &amp;&amp; c &lt; 128</code></p>
@@ -154,12 +182,16 @@ makes these functions easier to use in generic code <em>(i.e. templates, overloa
 
 <h2>Ascii Case Conversion</h2>
 
-<pre><code>constexpr int std::ascii::tolower(int c) noexcept;
+<pre><code>constexpr int std::ascii::tolower(char c) noexcept;
+constexpr int std::ascii::tolower(char16_t c) noexcept;
+constexpr int std::ascii::tolower(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::isupper(c) ? c - 32 : c</code></p>
 
-<pre><code>constexpr int std::ascii::toupper(int c) noexcept;
+<pre><code>constexpr int std::ascii::toupper(char c) noexcept;
+constexpr int std::ascii::toupper(char16_t c) noexcept;
+constexpr int std::ascii::toupper(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::islower(c) ? c + 32 : c</code></p>
@@ -168,12 +200,16 @@ makes these functions easier to use in generic code <em>(i.e. templates, overloa
 
 <p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isdigit(c)</code></p>
 
-<pre><code>constexpr int std::ascii::todigit(int c) noexcept;
+<pre><code>constexpr int std::ascii::todigit(char c) noexcept;
+constexpr int std::ascii::todigit(char16_t c) noexcept;
+constexpr int std::ascii::todigit(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::isdigit(c) ? c - 48 : /* undefined */</code></p>
 
-<pre><code>constexpr int todigit(int c, int m) noexcept;
+<pre><code>constexpr int todigit(char c, int m) noexcept;
+constexpr int todigit(char16_t c, int m) noexcept;
+constexpr int todigit(char32_t c, int m) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::todigit(c) * m</code></p>
@@ -182,12 +218,16 @@ makes these functions easier to use in generic code <em>(i.e. templates, overloa
 
 <p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isxdigit(c)</code></p>
 
-<pre><code>constexpr int std::ascii::toxdigit(int c) noexcept;
+<pre><code>constexpr int std::ascii::toxdigit(char c) noexcept;
+constexpr int std::ascii::toxdigit(char16_t c) noexcept;
+constexpr int std::ascii::toxdigit(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>return (c &gt;= 97 &amp;&amp; c &lt;= 102) ? return c - 97 : ((c &gt;= 65 &amp;&amp; c &lt;= 70) ? c - 65 : todigit(c));</code></p>
 
-<pre><code>constexpr int std::ascii::toxdigit(int c, int m) noexcept;
+<pre><code>constexpr int std::ascii::toxdigit(char c, int m) noexcept;
+constexpr int std::ascii::toxdigit(char16_t c, int m) noexcept;
+constexpr int std::ascii::toxdigit(char32_t c, int m) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::toxdigit(c) * m</code></p>
@@ -241,10 +281,3 @@ assert(h == 0xF04E);
 <ul>
 <li><a name="Austin_317"></a>[Austin_317] Minutes of September 2006 Meeting, The Open Group, Available online at <a href="http://www.opengroup.org/austin/docs/austin_317.html">http://www.opengroup.org/austin/docs/austin_317.html</a></li>
 </ul>
-
-<!--
-* <a name="N3864"></a>[N3864] Fioravante, Matthew *N3864 - A constexpr bitwise operations library for C++*, Available online at <https://github.com/fmatthew5876/stdcxx-bitops>
-* <a name="LXR"></a>[LXR] *Linux/include/linux/kernel.h* Available online at <http://lxr.free-electrons.com/source/include/linux/kernel.h#L50>
-* <a name="IsoCpp"></a>[IsoCpp] *ISO C++ standard*
-* <a name="clang"></a> *"clang" C Language Family Frontend for LLVM* Available online at <http://clang.llvm.org/>
--->
