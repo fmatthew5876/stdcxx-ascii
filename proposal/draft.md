@@ -51,7 +51,7 @@ the current locale.
 
 Supporting dynamic locales requires dynamic dispatch *(function pointer / virtual)*
 which is the most restrictive *(read: slowest)* form of branching with repect to the optimizer
-and branch optimizing/predicting hardware.
+and branch optimizing and predicting hardware.
 Calling the equivalent of a virtual
 function for every character is simply unacceptable for any high
 performance parsing routine.
@@ -72,61 +72,88 @@ Technical Specification
 
 We will now describe the additions to `<experimental/ascii>` header.
 Alternatively, all of these defintions could be added to the `<experimental/cctype>` header.
+Each function has overloads for type `char`, `char16_t`, and `char32_t`.
 
-*[note-- All of these functions interpret the input character `c` as ascii, regardless of any global locale settings. --end-note]*
+*[note-- All of these functions interpret the input character `c` as ascii compatible, regardless of any global locale settings. --end-note]*
 
 Character Checks
 -----------------------
 
-    constexpr bool std::ascii:isdigit(int c) noexcept;
+    constexpr bool std::ascii:isdigit(char c) noexcept;
+    constexpr bool std::ascii:isdigit(char16_t c) noexcept;
+    constexpr bool std::ascii:isdigit(char32_t c) noexcept;
 
 **Return**: `c >= 48 && c <= 57`
 
-    constexpr bool std::ascii:isxdigit(int c) noexcept;
+    constexpr bool std::ascii:isxdigit(char c) noexcept;
+    constexpr bool std::ascii:isxdigit(char16_t c) noexcept;
+    constexpr bool std::ascii:isxdigit(char32_t c) noexcept;
 
 **Return**: `std::ascii::isdigit(c) || (c >= 65 && c <= 70) || (c >= 97 && c <= 102)`
 
-    constexpr bool std::ascii:islower(int c) noexcept;
+    constexpr bool std::ascii:islower(char c) noexcept;
+    constexpr bool std::ascii:islower(char16_t c) noexcept;
+    constexpr bool std::ascii:islower(char32_t c) noexcept;
 
 **Return**: `c >= 97 && c <= 122`
 
-    constexpr bool std::ascii:isupper(int c) noexcept;
+    constexpr bool std::ascii:isupper(char c) noexcept;
+    constexpr bool std::ascii:isupper(char16_t c) noexcept;
+    constexpr bool std::ascii:isupper(char32_t c) noexcept;
 
 **Return**: `c >= 65 && c <= 90`
 
-    constexpr bool std::ascii:isalpha(int c) noexcept;
+    constexpr bool std::ascii:isalpha(char c) noexcept;
+    constexpr bool std::ascii:isalpha(char16_t c) noexcept;
+    constexpr bool std::ascii:isalpha(char32_t c) noexcept;
 
 **Return**: `std::ascii::islower(c) || std::ascii::isupper(c)`
 
-    constexpr bool std::ascii:isalnum(int c) noexcept;
+    constexpr bool std::ascii:isalnum(char c) noexcept;
+    constexpr bool std::ascii:isalnum(char16_t c) noexcept;
+    constexpr bool std::ascii:isalnum(char32_t c) noexcept;
 
 **Return**: `std::ascii::isalpha(c) || std::asci::isdigit(c)`
 
-    constexpr bool std::ascii:ispunct(int c) noexcept;
+    constexpr bool std::ascii:ispunct(char c) noexcept;
+    constexpr bool std::ascii:ispunct(char16_t c) noexcept;
+    constexpr bool std::ascii:ispunct(char32_t c) noexcept;
 
 **Return**: `(c >= 33 && c <= 47) || (c >= 58 && c <= 64) || (c >= 91 && c <= 96) || (c >= 123 && c <= 126)`
 
-    constexpr bool std::ascii:isgraph(int c) noexcept;
+    constexpr bool std::ascii:isgraph(char c) noexcept;
+    constexpr bool std::ascii:isgraph(char16_t c) noexcept;
+    constexpr bool std::ascii:isgraph(char32_t c) noexcept;
 
 **Return**: `(c >= 33 && c<= 126)`
 
-    constexpr bool std::ascii:isblank(int c) noexcept;
+    constexpr bool std::ascii:isblank(char c) noexcept;
+    constexpr bool std::ascii:isblank(char16_t c) noexcept;
+    constexpr bool std::ascii:isblank(char32_t c) noexcept;
 
 **Return**: `(c == 9 || c == 32)`
 
-    constexpr bool std::ascii:isspace(int c) noexcept;
+    constexpr bool std::ascii:isspace(char c) noexcept;
+    constexpr bool std::ascii:isspace(char16_t c) noexcept;
+    constexpr bool std::ascii:isspace(char32_t c) noexcept;
 
 **Return**: `(c >= 9 && c <= 13) || c == 32)`
 
-    constexpr bool std::ascii:isprint(int c) noexcept;
+    constexpr bool std::ascii:isprint(char c) noexcept;
+    constexpr bool std::ascii:isprint(char16_t c) noexcept;
+    constexpr bool std::ascii:isprint(char32_t c) noexcept;
 
 **Return**: `(c >= 32 && c <= 126)`
 
-    constexpr bool std::ascii:iscntrl(int c) noexcept;
+    constexpr bool std::ascii:iscntrl(char c) noexcept;
+    constexpr bool std::ascii:iscntrl(char16_t c) noexcept;
+    constexpr bool std::ascii:iscntrl(char32_t c) noexcept;
 
 **Return**: `(c >= 0 && c <= 31) || c == 127`
 
-    constexpr bool std::ascii::isascii(int c) noexcept;
+    constexpr bool std::ascii::isascii(char c) noexcept;
+    constexpr bool std::ascii::isascii(char16_t c) noexcept;
+    constexpr bool std::ascii::isascii(char32_t c) noexcept;
 
 **Return**: `true` if `c >= 0 && c < 128`
 
@@ -146,11 +173,15 @@ makes these functions easier to use in generic code *(i.e. templates, overloadin
 Ascii Case Conversion
 ---------------------
 
-    constexpr int std::ascii::tolower(int c) noexcept;
+    constexpr int std::ascii::tolower(char c) noexcept;
+    constexpr int std::ascii::tolower(char16_t c) noexcept;
+    constexpr int std::ascii::tolower(char32_t c) noexcept;
 
 **Return**: `std::ascii::isupper(c) ? c - 32 : c`
 
-    constexpr int std::ascii::toupper(int c) noexcept;
+    constexpr int std::ascii::toupper(char c) noexcept;
+    constexpr int std::ascii::toupper(char16_t c) noexcept;
+    constexpr int std::ascii::toupper(char32_t c) noexcept;
 
 **Return**: `std::ascii::islower(c) ? c + 32 : c`
 
@@ -159,11 +190,15 @@ Ascii digit char to int conversion (new)
 
 **Shared Pre-Conditions**: The result is undefined unless `std::ascii::isdigit(c)`
 
-    constexpr int std::ascii::todigit(int c) noexcept;
+    constexpr int std::ascii::todigit(char c) noexcept;
+    constexpr int std::ascii::todigit(char16_t c) noexcept;
+    constexpr int std::ascii::todigit(char32_t c) noexcept;
 
 **Return**: `std::ascii::isdigit(c) ? c - 48 : /* undefined */`
 
-    constexpr int todigit(int c, int m) noexcept;
+    constexpr int todigit(char c, int m) noexcept;
+    constexpr int todigit(char16_t c, int m) noexcept;
+    constexpr int todigit(char32_t c, int m) noexcept;
 
 **Return**: `std::ascii::todigit(c) * m`
 
@@ -172,11 +207,15 @@ Ascii hex digit char to int conversion (new)
 
 **Shared Pre-Conditions**: The result is undefined unless `std::ascii::isxdigit(c)`
 
-    constexpr int std::ascii::toxdigit(int c) noexcept;
+    constexpr int std::ascii::toxdigit(char c) noexcept;
+    constexpr int std::ascii::toxdigit(char16_t c) noexcept;
+    constexpr int std::ascii::toxdigit(char32_t c) noexcept;
 
 **Return**: `return (c >= 97 && c <= 102) ? return c - 97 : ((c >= 65 && c <= 70) ? c - 65 : todigit(c));`
 
-    constexpr int std::ascii::toxdigit(int c, int m) noexcept;
+    constexpr int std::ascii::toxdigit(char c, int m) noexcept;
+    constexpr int std::ascii::toxdigit(char16_t c, int m) noexcept;
+    constexpr int std::ascii::toxdigit(char32_t c, int m) noexcept;
 
 **Return**: `std::ascii::toxdigit(c) * m`
 
@@ -226,9 +265,3 @@ References
 ==================
 * <a name="Austin_317"></a>[Austin\_317] Minutes of September 2006 Meeting, The Open Group, Available online at <http://www.opengroup.org/austin/docs/austin_317.html>
 
-<!--
-* <a name="N3864"></a>[N3864] Fioravante, Matthew *N3864 - A constexpr bitwise operations library for C++*, Available online at <https://github.com/fmatthew5876/stdcxx-bitops>
-* <a name="LXR"></a>[LXR] *Linux/include/linux/kernel.h* Available online at <http://lxr.free-electrons.com/source/include/linux/kernel.h#L50>
-* <a name="IsoCpp"></a>[IsoCpp] *ISO C++ standard*
-* <a name="clang"></a> *"clang" C Language Family Frontend for LLVM* Available online at <http://clang.llvm.org/>
--->
