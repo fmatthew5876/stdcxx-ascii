@@ -3,7 +3,7 @@ Fast Ascii Character Manipulation
 
 * Document Number: NXXXX
 * Date: 2014-08-20
-* Programming Language C++, Library Working Group
+* Programming Language C++, Library Evolution Working Group
 * Reply-to: Matthew Fioravante <fmatthew5876@gmail.com>
 
 The latest draft, reference header, and links to past discussions on github: 
