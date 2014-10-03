@@ -54,7 +54,7 @@ constexpr bool iscntrl(int c) noexcept {
 }
 
 constexpr bool isascii(int c) noexcept {
-  return c & 0x7F;
+  return !(c & ~int(0x7F));
 }
 
 constexpr int tolower(int c) noexcept {
