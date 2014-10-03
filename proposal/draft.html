@@ -4,7 +4,7 @@
 <li>Document Number: NXXXX</li>
 <li>Date: 2014-08-20</li>
 <li>Programming Language C++, Library Evolution Working Group</li>
-<li>Reply-to: Matthew Fioravante <a href="&#109;&#97;&#105;&#108;&#x74;&#111;:&#102;&#109;&#97;&#x74;&#x74;&#104;&#x65;&#x77;&#53;&#56;&#55;&#x36;&#64;&#x67;&#x6D;&#97;&#x69;&#108;&#x2E;&#x63;&#111;&#109;">&#102;&#109;&#97;&#x74;&#x74;&#104;&#x65;&#x77;&#53;&#56;&#55;&#x36;&#64;&#x67;&#x6D;&#97;&#x69;&#108;&#x2E;&#x63;&#111;&#109;</a></li>
+<li>Reply-to: Matthew Fioravante <a href="&#x6D;&#x61;&#105;&#x6C;&#x74;&#x6F;:f&#x6D;&#97;&#116;&#116;&#x68;e&#119;&#53;&#x38;&#55;6&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#x6F;&#x6D;">f&#x6D;&#97;&#116;&#116;&#x68;e&#119;&#53;&#x38;&#55;6&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#x6F;&#x6D;</a></li>
 </ul>
 
 <p>The latest draft, reference header, and links to past discussions on github: </p>
@@ -58,7 +58,8 @@ performance parsing routine.</p>
 <p>Most crucially, dynamic dispatch prohibits inlining.
 On most platforms, a few comparisons is much cheaper than even a direct function call.
 Inlining also allows for the possibility of automatic vectorization by an optimizer.
-Finally, the <code>&lt;cctype&gt;</code> functions can never be <code>constexpr</code>.</p>
+The <code>&lt;cctype&gt;</code> functions can never be <code>constexpr</code>.
+Finally, there are also times when we want consistency regardless of the global locale setting.</p>
 
 <p>We propose an additional set of character functions which mirror
 the functions in <code>&lt;cctype&gt;</code> but are placed in the <code>std::ascii</code>
@@ -70,7 +71,7 @@ themselves, it is tedious and error prone to do so.</p>
 
 <p>We will now describe the additions to <code>&lt;experimental/ascii&gt;</code> header.
 Alternatively, all of these defintions could be added to the <code>&lt;experimental/cctype&gt;</code> header.
-Each function has overloads for type <code>char</code>, <code>char16_t</code>, and <code>char32_t</code>.</p>
+Each function has overloads for type <code>char</code>, <code>wchar_t</code>, <code>char16_t</code>, and <code>char32_t</code>.</p>
 
 <p><em>[note-- All of these functions interpret the input character <code>c</code> as ascii compatible, regardless of any global locale settings. --end-note]</em></p>
 
@@ -185,7 +186,7 @@ constexpr bool std::ascii::isascii(char32_t c) noexcept;
 <p>POSIX defines <code>extern "C" int isascii(int c)</code> in the global namespace. As of POSIX.1-2008,
 <code>isascii</code> has been marked obsolete because they claim that it <em>"cannot be used portably in a localized application."</em>
 [<a href="#Austin_317">Austin_317</a>]. This function doesn't make sense if the current locale is not ascii compatible.
-On the other hand, our version <code>std::ascii::isascii()</code> is well defined because it assumes the input character is ascii encoded.</p>
+On the other hand, our version <code>std::ascii::isascii()</code> is well defined because it assumes the input character is ascii compatible.</p>
 
 <h3>bool return type</h3>
 
@@ -195,25 +196,25 @@ makes these functions easier to use in generic code <em>(i.e. templates, overloa
 
 <h2>Ascii Case Conversion</h2>
 
-<pre><code>constexpr int std::ascii::tolower(char c) noexcept;
-constexpr int std::ascii::tolower(wchar_t c) noexcept;
-constexpr int std::ascii::tolower(char16_t c) noexcept;
-constexpr int std::ascii::tolower(char32_t c) noexcept;
+<pre><code>constexpr char std::ascii::tolower(char c) noexcept;
+constexpr wchar_t std::ascii::tolower(wchar_t c) noexcept;
+constexpr char16_t std::ascii::tolower(char16_t c) noexcept;
+constexpr char32_t std::ascii::tolower(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::isupper(c) ? c - 32 : c</code></p>
 
-<pre><code>constexpr int std::ascii::toupper(char c) noexcept;
-constexpr int std::ascii::toupper(wchar_t c) noexcept;
-constexpr int std::ascii::toupper(char16_t c) noexcept;
-constexpr int std::ascii::toupper(char32_t c) noexcept;
+<pre><code>constexpr char std::ascii::toupper(char c) noexcept;
+constexpr wchar_t std::ascii::toupper(wchar_t c) noexcept;
+constexpr char16_t std::ascii::toupper(char16_t c) noexcept;
+constexpr char32_t std::ascii::toupper(char32_t c) noexcept;
 </code></pre>
 
 <p><strong>Return</strong>: <code>std::ascii::islower(c) ? c + 32 : c</code></p>
 
 <h2>Ascii digit char to int conversion (new)</h2>
 
-<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isdigit(c)</code></p>
+<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isdigit(c) == true</code></p>
 
 <pre><code>constexpr int std::ascii::todigit(char c) noexcept;
 constexpr int std::ascii::todigit(wchar_t c) noexcept;
@@ -233,7 +234,7 @@ constexpr int todigit(char32_t c, int m) noexcept;
 
 <h2>Ascii hex digit char to int conversion (new)</h2>
 
-<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isxdigit(c)</code></p>
+<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isxdigit(c) == true</code></p>
 
 <pre><code>constexpr int std::ascii::toxdigit(char c) noexcept;
 constexpr int std::ascii::toxdigit(wchar_t c) noexcept;
@@ -284,9 +285,9 @@ assert(h == 0xF04E);
 which comes from platform agnostic sources. For example a file or network socket.
 Most often, we would use <code>char</code>, <code>char16_t</code>, or <code>char32_t</code> to process such data.
 In the case of <code>wchar_t</code>, we don't know its size or default encoding on the system. Therefore we would 
-only use for platform specific sources such as string literals and file system paths.</p>
+only use it for platform specific sources such as string literals and file system paths.</p>
 
-<p>One systems such as windows, where <code>wchar_t</code> happens to be using an ascii compatible encoding, these
+<p>On systems such as windows, where <code>wchar_t</code> happens to be using an ascii compatible encoding, these
 functions are useful. On other systems, they are not useful at all and their presense could even
 be misleading. We have opted to include the <code>wchar_t</code> overloads in this proposal. Should the
 standard committee decide that <code>wchar_t</code> is a bad idea we will happily drop support for it.</p>
