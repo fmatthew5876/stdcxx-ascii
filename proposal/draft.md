@@ -59,7 +59,8 @@ performance parsing routine.
 Most crucially, dynamic dispatch prohibits inlining.
 On most platforms, a few comparisons is much cheaper than even a direct function call.
 Inlining also allows for the possibility of automatic vectorization by an optimizer.
-Finally, the `<cctype>` functions can never be `constexpr`.
+The `<cctype>` functions can never be `constexpr`.
+Finally, there are also times when we want consistency regardless of the global locale setting.
 
 We propose an additional set of character functions which mirror
 the functions in `<cctype>` but are placed in the `std::ascii`
@@ -72,7 +73,7 @@ Technical Specification
 
 We will now describe the additions to `<experimental/ascii>` header.
 Alternatively, all of these defintions could be added to the `<experimental/cctype>` header.
-Each function has overloads for type `char`, `char16_t`, and `char32_t`.
+Each function has overloads for type `char`, `wchar_t`, `char16_t`, and `char32_t`.
 
 *[note-- All of these functions interpret the input character `c` as ascii compatible, regardless of any global locale settings. --end-note]*
 
@@ -175,7 +176,7 @@ Character Checks
 POSIX defines `extern "C" int isascii(int c)` in the global namespace. As of POSIX.1-2008,
 `isascii` has been marked obsolete because they claim that it *"cannot be used portably in a localized application."*
 \[[Austin\_317](#Austin_317)\]. This function doesn't make sense if the current locale is not ascii compatible.
-On the other hand, our version `std::ascii::isascii()` is well defined because it assumes the input character is ascii encoded.
+On the other hand, our version `std::ascii::isascii()` is well defined because it assumes the input character is ascii compatible.
 
 ###bool return type
 
@@ -186,24 +187,24 @@ makes these functions easier to use in generic code *(i.e. templates, overloadin
 Ascii Case Conversion
 ---------------------
 
-    constexpr int std::ascii::tolower(char c) noexcept;
-    constexpr int std::ascii::tolower(wchar_t c) noexcept;
-    constexpr int std::ascii::tolower(char16_t c) noexcept;
-    constexpr int std::ascii::tolower(char32_t c) noexcept;
+    constexpr char std::ascii::tolower(char c) noexcept;
+    constexpr wchar_t std::ascii::tolower(wchar_t c) noexcept;
+    constexpr char16_t std::ascii::tolower(char16_t c) noexcept;
+    constexpr char32_t std::ascii::tolower(char32_t c) noexcept;
 
 **Return**: `std::ascii::isupper(c) ? c - 32 : c`
 
-    constexpr int std::ascii::toupper(char c) noexcept;
-    constexpr int std::ascii::toupper(wchar_t c) noexcept;
-    constexpr int std::ascii::toupper(char16_t c) noexcept;
-    constexpr int std::ascii::toupper(char32_t c) noexcept;
+    constexpr char std::ascii::toupper(char c) noexcept;
+    constexpr wchar_t std::ascii::toupper(wchar_t c) noexcept;
+    constexpr char16_t std::ascii::toupper(char16_t c) noexcept;
+    constexpr char32_t std::ascii::toupper(char32_t c) noexcept;
 
 **Return**: `std::ascii::islower(c) ? c + 32 : c`
 
 Ascii digit char to int conversion (new)
 ---------------------
 
-**Shared Pre-Conditions**: The result is undefined unless `std::ascii::isdigit(c)`
+**Shared Pre-Conditions**: The result is undefined unless `std::ascii::isdigit(c) == true`
 
     constexpr int std::ascii::todigit(char c) noexcept;
     constexpr int std::ascii::todigit(wchar_t c) noexcept;
@@ -222,7 +223,7 @@ Ascii digit char to int conversion (new)
 Ascii hex digit char to int conversion (new)
 ---------------------
 
-**Shared Pre-Conditions**: The result is undefined unless `std::ascii::isxdigit(c)`
+**Shared Pre-Conditions**: The result is undefined unless `std::ascii::isxdigit(c) == true`
 
     constexpr int std::ascii::toxdigit(char c) noexcept;
     constexpr int std::ascii::toxdigit(wchar_t c) noexcept;
@@ -270,9 +271,9 @@ The type `wchar_t` posts somewhat of a problem. All of these functions are desig
 which comes from platform agnostic sources. For example a file or network socket.
 Most often, we would use `char`, `char16_t`, or `char32_t` to process such data.
 In the case of `wchar_t`, we don't know its size or default encoding on the system. Therefore we would 
-only use for platform specific sources such as string literals and file system paths.
+only use it for platform specific sources such as string literals and file system paths.
 
-One systems such as windows, where `wchar_t` happens to be using an ascii compatible encoding, these
+On systems such as windows, where `wchar_t` happens to be using an ascii compatible encoding, these
 functions are useful. On other systems, they are not useful at all and their presense could even
 be misleading. We have opted to include the `wchar_t` overloads in this proposal. Should the
 standard committee decide that `wchar_t` is a bad idea we will happily drop support for it.
