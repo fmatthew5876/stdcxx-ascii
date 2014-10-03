@@ -263,6 +263,19 @@ Parsing a hex string:
     int h = toxdigit(hstr[0], 0x1000) + toxdigit(hstr[1], 0x100) + toxdigit(hstr[2], 0x10) + toxdigit(hstr[3]);
     assert(h == 0xF04E);
     
+Discussion about wchar\_t
+=========================
+
+The type `wchar_t` posts somewhat of a problem. All of these functions are designed for processing data
+which comes from platform agnostic sources. For example a file or network socket.
+Most often, we would use `char`, `char16_t`, or `char32_t` to process such data.
+In the case of `wchar_t`, we don't know its size or default encoding on the system. Therefore we would 
+only use for platform specific sources such as string literals and file system paths.
+
+One systems such as windows, where `wchar_t` happens to be using an ascii compatible encoding, these
+functions are useful. On other systems, they are not useful at all and their presense could even
+be misleading. We have opted to include the `wchar_t` overloads in this proposal. Should the
+standard committee decide that `wchar_t` is a bad idea we will happily drop support for it.
 
 Use Cases
 ==============
@@ -278,6 +291,7 @@ Acknowledgments
 ====================
 
 * Thank you to everyone one the std proposals forum.
+* Special thanks to Thiago Macieira for pointing out the issues related to `wchar_t`.
 
 
 References
