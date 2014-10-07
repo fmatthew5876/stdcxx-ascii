@@ -25,7 +25,7 @@ This proposal is a pure library extension.
 It adds a new header `<ascii>` (alternatively reuse `<cctype>`) with
 a new namespace `std::ascii`. It adds a set of `constexpr`
 `noexcept` free functions which mirror `int isspace(int ch)`
-functions in `<cctype>`. Finally, this paper also adds two
+functions in `<cctype>`. Finally, this paper also adds two new
 character digit-to-int conversion functions to the `std::ascii` namespace.
 
 Impact on Implementations
@@ -57,14 +57,15 @@ Calling the equivalent of a virtual
 function for every character is simply unacceptable for any high-performance parsing routine.
 
 Most crucially, dynamic dispatch prohibits inlining.
-On most platforms, a few comparisons is much cheaper than even a direct function call.
+On most platforms, a few comparisons or a table lookup is much cheaper than even a direct function call.
 Inlining also allows for the possibility of automatic vectorization by an optimizer.
-The `<cctype>` functions can never be `constexpr`.
+In addition, the `<cctype>` functions can never be `constexpr`.
 Finally, there are also times when we want consistency regardless of the global locale setting.
 
 We propose an additional set of character functions which mirror
 the functions in `<cctype>` but are placed in the `std::ascii`
-namespace. We also propose two additional useful functions:
+namespace. We also propose two additional useful functions for
+converting ascii digit characters into integers:
 `todigit` and `toxdigit`. While one can easily implement these methods
 themselves, it is tedious and error-prone to do so.
 
@@ -211,7 +212,7 @@ ASCII digit char-to-int conversion (new)
     constexpr int std::ascii::todigit(char16_t c) noexcept;
     constexpr int std::ascii::todigit(char32_t c) noexcept;
 
-**Returns**: `std::ascii::isdigit(c) ? c - 48 : /* undefined */`
+**Returns**: `std::ascii::isdigit(c) ? c - 48 : /* unspecified */`
 
     constexpr int std::ascii::todigit(char c, int m) noexcept;
     constexpr int std::ascii::todigit(wchar_t c, int m) noexcept;
@@ -276,7 +277,7 @@ only use it for platform-specific sources such as string literals and file syste
 On systems such as Windows, where `wchar_t` happens to be using an ASCII-compatible encoding (UTF-16), these
 functions are useful. On other systems, they are not useful at all and their presence could even
 be misleading. We have opted to include the `wchar_t` overloads in this proposal. Should the
-Standard Committee decide that `wchar_t` support in this proposal is a bad idea we will happily drop support for it.
+Standards Committee decide that `wchar_t` support in this proposal is a bad idea we will happily drop support for it.
 
 Use Cases
 ==============
@@ -293,7 +294,7 @@ Acknowledgments
 
 * Thank you to everyone one the std-proposals forum.
 * Special thanks to Thiago Macieira for pointing out the issues related to `wchar_t`.
-* Thank you to Melissa Mears for proof reading this paper.
+* Thank you to Melissa Mears for proofreading this paper.
 
 
 References
