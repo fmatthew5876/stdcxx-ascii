@@ -4,7 +4,7 @@
 <li>Document Number: NXXXX</li>
 <li>Date: 2014-08-20</li>
 <li>Programming Language C++, Library Evolution Working Group</li>
-<li>Reply-to: Matthew Fioravante <a href="&#x6D;&#x61;&#105;&#108;&#116;&#x6F;:&#102;&#x6D;&#97;&#116;&#116;&#x68;&#x65;&#119;&#53;&#x38;&#55;&#54;&#64;&#x67;&#x6D;&#x61;&#x69;&#x6C;&#46;&#x63;&#x6F;&#109;">&#102;&#x6D;&#97;&#116;&#116;&#x68;&#x65;&#119;&#53;&#x38;&#55;&#54;&#64;&#x67;&#x6D;&#x61;&#x69;&#x6C;&#46;&#x63;&#x6F;&#109;</a></li>
+<li>Reply-to: Matthew Fioravante <a href="&#109;&#x61;&#105;l&#116;&#x6F;:&#102;m&#x61;t&#116;&#x68;&#101;&#x77;&#53;&#56;&#x37;&#54;&#64;g&#109;&#x61;&#105;&#x6C;&#x2E;&#x63;&#111;m">&#102;m&#x61;t&#116;&#x68;&#101;&#x77;&#53;&#56;&#x37;&#54;&#64;g&#109;&#x61;&#105;&#x6C;&#x2E;&#x63;&#111;m</a></li>
 </ul>
 
 <p>The latest draft, reference header, and links to past discussions on Github: </p>
@@ -63,9 +63,9 @@ Finally, there are also times when we want consistency regardless of the global 
 
 <p>We propose an additional set of character functions which mirror
 the functions in <code>&lt;cctype&gt;</code> but are placed in the <code>std::ascii</code>
-namespace. We also propose two additional useful functions for
-converting ascii digit characters into integers:
-<code>todigit</code> and <code>toxdigit</code>. While one can easily implement these methods
+namespace. We also propose additional useful functions for
+converting ascii digit characters to and from integers.
+While one can easily implement these methods
 themselves, it is tedious and error-prone to do so.</p>
 
 <h1>Technical Specification</h1>
@@ -180,7 +180,7 @@ constexpr bool std::ascii::isascii(char16_t c) noexcept;
 constexpr bool std::ascii::isascii(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Returns</strong>: <code>true</code> if <code>c &gt;= 0 &amp;&amp; c &lt; 128</code></p>
+<p><strong>Returns</strong>: <code>true</code> if <code>c &gt;= 0 &amp;&amp; c &lt;= 127</code></p>
 
 <h3>Notes about isascii()</h3>
 
@@ -253,6 +253,30 @@ constexpr int std::ascii::toxdigit(char32_t c, int m) noexcept;
 
 <p><strong>Returns</strong>: <code>std::ascii::toxdigit(c) * m</code></p>
 
+<h2>ASCII digit int-to-char conversion (new)</h2>
+
+<pre><code>constexpr char std::ascii::fromdigit(int i) noexcept;
+</code></pre>
+
+<p><strong>Returns</strong>: <code>char((i % 10) + 48)</code></p>
+
+<pre><code>constexpr char std::ascii::fromdigit(int i, int m) noexcept;
+</code></pre>
+
+<p><strong>Returns</strong>: <code>std::ascii::fromdigit(i / m)</code></p>
+
+<h2>ASCII hex digit int-to-char conversion (new)</h2>
+
+<pre><code>constexpr char std::ascii::fromxdigit(int i, bool upper) noexcept;
+</code></pre>
+
+<p><strong>Returns</strong>: <code>i % 10 &lt;= 10 ? fromdigit(i) : (upper ? char((i % 10) + 65) : char((i % 10) + 97))</code></p>
+
+<pre><code>constexpr char std::ascii::fromxdigit(int i, int m, bool upper) noexcept;
+</code></pre>
+
+<p><strong>Returns</strong>: <code>std::ascii::fromxdigit(i / m, upper)</code></p>
+
 <h1>Example Usage</h1>
 
 <p>Parsing a date:</p>
@@ -265,6 +289,13 @@ int d = todigit(ymds[6], 10) + todigit(ymds[7]);
 assert(y == 2014);
 assert(m == 5);
 assert(d == 17);
+
+ymds2[9] = { fromdigit(y, 1000), fromdigit(y, 100),
+             fromdigit(y, 10), fromdigit(y),
+             fromdigit(m, 10), fromdigit(m),
+             fromdigit(d, 10), fromdigit(d),
+             '\0' };
+assert(!strcmp(ymds, ymds2));
 </code></pre>
 
 <p>Converting an ASCII string to upper case:</p>
