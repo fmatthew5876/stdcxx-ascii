@@ -64,9 +64,9 @@ Finally, there are also times when we want consistency regardless of the global 
 
 We propose an additional set of character functions which mirror
 the functions in `<cctype>` but are placed in the `std::ascii`
-namespace. We also propose two additional useful functions for
-converting ascii digit characters into integers:
-`todigit` and `toxdigit`. While one can easily implement these methods
+namespace. We also propose additional useful functions for
+converting ascii digit characters to and from integers.
+While one can easily implement these methods
 themselves, it is tedious and error-prone to do so.
 
 Technical Specification
@@ -240,6 +240,30 @@ ASCII hex digit char-to-int conversion (new)
 
 **Returns**: `std::ascii::toxdigit(c) * m`
 
+ASCII digit int-to-char conversion (new)
+------------------------------------
+
+    constexpr char std::ascii::fromdigit(int i) noexcept;
+
+**Returns**: `char((i % 10) + 48)`
+
+    constexpr char std::ascii::fromdigit(int i, int m) noexcept;
+
+**Returns**: `std::ascii::fromdigit(i / m)`
+
+ASCII hex digit int-to-char conversion (new)
+------------------------------------
+
+    constexpr char std::ascii::fromxdigit(int i, bool upper) noexcept;
+
+**Returns**: `i % 10 <= 10 ? fromdigit(i) : (upper ? char((i % 10) + 65) : char((i % 10) + 97))`
+
+    constexpr char std::ascii::fromxdigit(int i, int m, bool upper) noexcept;
+
+**Returns**: `std::ascii::fromxdigit(i / m, upper)`
+
+
+
 Example Usage
 =================
 
@@ -253,6 +277,13 @@ Parsing a date:
     assert(y == 2014);
     assert(m == 5);
     assert(d == 17);
+
+    ymds2[9] = { fromdigit(y, 1000), fromdigit(y, 100),
+                 fromdigit(y, 10), fromdigit(y),
+                 fromdigit(m, 10), fromdigit(m),
+                 fromdigit(d, 10), fromdigit(d),
+                 '\0' };
+    assert(!strcmp(ymds, ymds2));
 
 Converting an ASCII string to upper case:
 
