@@ -170,7 +170,7 @@ Character Checks
     constexpr bool std::ascii::isascii(char16_t c) noexcept;
     constexpr bool std::ascii::isascii(char32_t c) noexcept;
 
-**Returns**: `true` if `c >= 0 && c < 128`
+**Returns**: `true` if `c >= 0 && c <= 127`
 
 ###Notes about isascii()
 
