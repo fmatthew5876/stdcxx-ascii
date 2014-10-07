@@ -1,13 +1,13 @@
-<h1>Fast Ascii Character Manipulation</h1>
+<h1>Fast ASCII Character Manipulation</h1>
 
 <ul>
 <li>Document Number: NXXXX</li>
 <li>Date: 2014-08-20</li>
 <li>Programming Language C++, Library Evolution Working Group</li>
-<li>Reply-to: Matthew Fioravante <a href="&#x6D;&#x61;&#105;&#x6C;&#x74;&#x6F;:f&#x6D;&#97;&#116;&#116;&#x68;e&#119;&#53;&#x38;&#55;6&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#x6F;&#x6D;">f&#x6D;&#97;&#116;&#116;&#x68;e&#119;&#53;&#x38;&#55;6&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#x6F;&#x6D;</a></li>
+<li>Reply-to: Matthew Fioravante <a href="&#x6D;&#97;&#105;&#x6C;&#116;&#111;:&#x66;&#109;&#97;&#116;&#116;&#x68;&#x65;w&#53;&#56;&#55;&#54;&#64;&#x67;&#109;&#97;&#105;&#x6C;&#x2E;&#99;&#x6F;&#x6D;">&#x66;&#109;&#97;&#116;&#116;&#x68;&#x65;w&#53;&#56;&#55;&#54;&#64;&#x67;&#109;&#97;&#105;&#x6C;&#x2E;&#99;&#x6F;&#x6D;</a></li>
 </ul>
 
-<p>The latest draft, reference header, and links to past discussions on github: </p>
+<p>The latest draft, reference header, and links to past discussions on Github: </p>
 
 <ul>
 <li><a href="https://github.com/fmatthew5876/stdcxx-ascii">https://github.com/fmatthew5876/stdcxx-ascii</a></li>
@@ -15,8 +15,8 @@
 
 <h1>Introduction</h1>
 
-<p>This proposal adds a set of constexpr free functions for
-checking and converting ascii characters.</p>
+<p>This proposal adds a set of <code>constexpr</code> free functions for
+checking and converting ASCII characters.</p>
 
 <p>This proposal is aimed for a C++ Technical Specification.</p>
 
@@ -27,33 +27,33 @@ It adds a new header <code>&lt;ascii&gt;</code> (alternatively reuse <code>&lt;c
 a new namespace <code>std::ascii</code>. It adds a set of <code>constexpr</code>
 <code>noexcept</code> free functions which mirror <code>int isspace(int ch)</code>
 functions in <code>&lt;cctype&gt;</code>. Finally, this paper also adds 2
-character digit to int conversion functions to the <code>std::ascii</code> namespace.</p>
+character digit-to-int conversion functions to the <code>std::ascii</code> namespace.</p>
 
 <h1>Impact on Implementations</h1>
 
 <p>Portable implementations of these functions are trivial. A full
-implementation is included in the reference header on github.</p>
+implementation is included in the reference header on Github.</p>
 
 <h1>Motivation and Design</h1>
 
 <p>Computer software problems at their core are about transforming data.
 In many domains such as Scientific Computing, Data Mining, and Finance we often
-deal with large data files which use ascii delimeters. Ascii text data
+deal with large data files which use ASCII delimiters. ASCII text data
 files are useful because they are human readable but also reasonably fast
-to parse into memory. A popular example file format is CSV files which can be exported from Microsoft Excel.</p>
+to parse into memory. A popular example file format is CSV files which can
+be exported from any common spreadsheet application such as Microsoft Excel.</p>
 
 <p>The C++ standard library currently lacks an efficient and portable
-mechanism for checking and converting ascii characters. The standard
+mechanism for checking and converting ASCII characters. The standard
 set of character routines in <code>&lt;cctype&gt;</code> such as <code>std::isspace()</code> are
-not efficient becuase they have dynamic behavior at runtime based on
+not efficient because they have dynamic behavior at runtime based on
 the current locale.</p>
 
 <p>Supporting dynamic locales requires dynamic dispatch <em>(function pointer / virtual)</em>
-which is the most restrictive <em>(read: slowest)</em> form of branching with repect to the optimizer
+which is the most restrictive <em>(read: slowest)</em> form of branching with respect to the optimizer
 and branch optimizing and predicting hardware.
 Calling the equivalent of a virtual
-function for every character is simply unacceptable for any high
-performance parsing routine.</p>
+function for every character is simply unacceptable for any high-performance parsing routine.</p>
 
 <p>Most crucially, dynamic dispatch prohibits inlining.
 On most platforms, a few comparisons is much cheaper than even a direct function call.
@@ -63,115 +63,115 @@ Finally, there are also times when we want consistency regardless of the global 
 
 <p>We propose an additional set of character functions which mirror
 the functions in <code>&lt;cctype&gt;</code> but are placed in the <code>std::ascii</code>
-namespace. We also propose 2 additional useful functions
-<code>todigit</code>, and <code>toxdigit</code>. While one can easily implement these methods
-themselves, it is tedious and error prone to do so.</p>
+namespace. We also propose two additional useful functions:
+<code>todigit</code> and <code>toxdigit</code>. While one can easily implement these methods
+themselves, it is tedious and error-prone to do so.</p>
 
 <h1>Technical Specification</h1>
 
 <p>We will now describe the additions to <code>&lt;experimental/ascii&gt;</code> header.
-Alternatively, all of these defintions could be added to the <code>&lt;experimental/cctype&gt;</code> header.
+Alternatively, all of these definitions could be added to the <code>&lt;experimental/cctype&gt;</code> header.
 Each function has overloads for type <code>char</code>, <code>wchar_t</code>, <code>char16_t</code>, and <code>char32_t</code>.</p>
 
-<p><em>[note-- All of these functions interpret the input character <code>c</code> as ascii compatible, regardless of any global locale settings. --end-note]</em></p>
+<p>[<em>Note:</em> All these functions interpret the input character <code>c</code> as ASCII-compatible, regardless of any global locale settings. <em>--end note</em>]</p>
 
 <h2>Character Checks</h2>
 
-<pre><code>constexpr bool std::ascii:isdigit(char c) noexcept;
-constexpr bool std::ascii:isdigit(wchar_t c) noexcept;
-constexpr bool std::ascii:isdigit(char16_t c) noexcept;
-constexpr bool std::ascii:isdigit(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isdigit(char c) noexcept;
+constexpr bool std::ascii::isdigit(wchar_t c) noexcept;
+constexpr bool std::ascii::isdigit(char16_t c) noexcept;
+constexpr bool std::ascii::isdigit(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>c &gt;= 48 &amp;&amp; c &lt;= 57</code></p>
+<p><strong>Returns</strong>: <code>c &gt;= 48 &amp;&amp; c &lt;= 57</code></p>
 
-<pre><code>constexpr bool std::ascii:isxdigit(char c) noexcept;
-constexpr bool std::ascii:isxdigit(wchar_t c) noexcept;
-constexpr bool std::ascii:isxdigit(char16_t c) noexcept;
-constexpr bool std::ascii:isxdigit(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isxdigit(char c) noexcept;
+constexpr bool std::ascii::isxdigit(wchar_t c) noexcept;
+constexpr bool std::ascii::isxdigit(char16_t c) noexcept;
+constexpr bool std::ascii::isxdigit(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::isdigit(c) || (c &gt;= 65 &amp;&amp; c &lt;= 70) || (c &gt;= 97 &amp;&amp; c &lt;= 102)</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::isdigit(c) || (c &gt;= 65 &amp;&amp; c &lt;= 70) || (c &gt;= 97 &amp;&amp; c &lt;= 102)</code></p>
 
-<pre><code>constexpr bool std::ascii:islower(char c) noexcept;
-constexpr bool std::ascii:islower(wchar_t c) noexcept;
-constexpr bool std::ascii:islower(char16_t c) noexcept;
-constexpr bool std::ascii:islower(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::islower(char c) noexcept;
+constexpr bool std::ascii::islower(wchar_t c) noexcept;
+constexpr bool std::ascii::islower(char16_t c) noexcept;
+constexpr bool std::ascii::islower(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>c &gt;= 97 &amp;&amp; c &lt;= 122</code></p>
+<p><strong>Returns</strong>: <code>c &gt;= 97 &amp;&amp; c &lt;= 122</code></p>
 
-<pre><code>constexpr bool std::ascii:isupper(char c) noexcept;
-constexpr bool std::ascii:isupper(wchar_t c) noexcept;
-constexpr bool std::ascii:isupper(char16_t c) noexcept;
-constexpr bool std::ascii:isupper(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isupper(char c) noexcept;
+constexpr bool std::ascii::isupper(wchar_t c) noexcept;
+constexpr bool std::ascii::isupper(char16_t c) noexcept;
+constexpr bool std::ascii::isupper(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>c &gt;= 65 &amp;&amp; c &lt;= 90</code></p>
+<p><strong>Returns</strong>: <code>c &gt;= 65 &amp;&amp; c &lt;= 90</code></p>
 
-<pre><code>constexpr bool std::ascii:isalpha(char c) noexcept;
-constexpr bool std::ascii:isalpha(wchar_t c) noexcept;
-constexpr bool std::ascii:isalpha(char16_t c) noexcept;
-constexpr bool std::ascii:isalpha(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isalpha(char c) noexcept;
+constexpr bool std::ascii::isalpha(wchar_t c) noexcept;
+constexpr bool std::ascii::isalpha(char16_t c) noexcept;
+constexpr bool std::ascii::isalpha(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::islower(c) || std::ascii::isupper(c)</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::islower(c) || std::ascii::isupper(c)</code></p>
 
-<pre><code>constexpr bool std::ascii:isalnum(char c) noexcept;
-constexpr bool std::ascii:isalnum(wchar_t c) noexcept;
-constexpr bool std::ascii:isalnum(char16_t c) noexcept;
-constexpr bool std::ascii:isalnum(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isalnum(char c) noexcept;
+constexpr bool std::ascii::isalnum(wchar_t c) noexcept;
+constexpr bool std::ascii::isalnum(char16_t c) noexcept;
+constexpr bool std::ascii::isalnum(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::isalpha(c) || std::asci::isdigit(c)</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::isalpha(c) || std::ascii::isdigit(c)</code></p>
 
-<pre><code>constexpr bool std::ascii:ispunct(char c) noexcept;
-constexpr bool std::ascii:ispunct(wchar_t c) noexcept;
-constexpr bool std::ascii:ispunct(char16_t c) noexcept;
-constexpr bool std::ascii:ispunct(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::ispunct(char c) noexcept;
+constexpr bool std::ascii::ispunct(wchar_t c) noexcept;
+constexpr bool std::ascii::ispunct(char16_t c) noexcept;
+constexpr bool std::ascii::ispunct(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>(c &gt;= 33 &amp;&amp; c &lt;= 47) || (c &gt;= 58 &amp;&amp; c &lt;= 64) || (c &gt;= 91 &amp;&amp; c &lt;= 96) || (c &gt;= 123 &amp;&amp; c &lt;= 126)</code></p>
+<p><strong>Returns</strong>: <code>(c &gt;= 33 &amp;&amp; c &lt;= 47) || (c &gt;= 58 &amp;&amp; c &lt;= 64) || (c &gt;= 91 &amp;&amp; c &lt;= 96) || (c &gt;= 123 &amp;&amp; c &lt;= 126)</code></p>
 
-<pre><code>constexpr bool std::ascii:isgraph(char c) noexcept;
-constexpr bool std::ascii:isgraph(wchar_t c) noexcept;
-constexpr bool std::ascii:isgraph(char16_t c) noexcept;
-constexpr bool std::ascii:isgraph(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isgraph(char c) noexcept;
+constexpr bool std::ascii::isgraph(wchar_t c) noexcept;
+constexpr bool std::ascii::isgraph(char16_t c) noexcept;
+constexpr bool std::ascii::isgraph(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>(c &gt;= 33 &amp;&amp; c&lt;= 126)</code></p>
+<p><strong>Returns</strong>: <code>(c &gt;= 33 &amp;&amp; c &lt;= 126)</code></p>
 
-<pre><code>constexpr bool std::ascii:isblank(char c) noexcept;
-constexpr bool std::ascii:isblank(wchar_t c) noexcept;
-constexpr bool std::ascii:isblank(char16_t c) noexcept;
-constexpr bool std::ascii:isblank(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isblank(char c) noexcept;
+constexpr bool std::ascii::isblank(wchar_t c) noexcept;
+constexpr bool std::ascii::isblank(char16_t c) noexcept;
+constexpr bool std::ascii::isblank(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>(c == 9 || c == 32)</code></p>
+<p><strong>Returns</strong>: <code>(c == 9 || c == 32)</code></p>
 
-<pre><code>constexpr bool std::ascii:isspace(char c) noexcept;
-constexpr bool std::ascii:isspace(wchar_t c) noexcept;
-constexpr bool std::ascii:isspace(char16_t c) noexcept;
-constexpr bool std::ascii:isspace(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isspace(char c) noexcept;
+constexpr bool std::ascii::isspace(wchar_t c) noexcept;
+constexpr bool std::ascii::isspace(char16_t c) noexcept;
+constexpr bool std::ascii::isspace(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>(c &gt;= 9 &amp;&amp; c &lt;= 13) || c == 32)</code></p>
+<p><strong>Returns</strong>: <code>(c &gt;= 9 &amp;&amp; c &lt;= 13) || c == 32)</code></p>
 
-<pre><code>constexpr bool std::ascii:isprint(char c) noexcept;
-constexpr bool std::ascii:isprint(wchar_t c) noexcept;
-constexpr bool std::ascii:isprint(char16_t c) noexcept;
-constexpr bool std::ascii:isprint(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::isprint(char c) noexcept;
+constexpr bool std::ascii::isprint(wchar_t c) noexcept;
+constexpr bool std::ascii::isprint(char16_t c) noexcept;
+constexpr bool std::ascii::isprint(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>(c &gt;= 32 &amp;&amp; c &lt;= 126)</code></p>
+<p><strong>Returns</strong>: <code>(c &gt;= 32 &amp;&amp; c &lt;= 126)</code></p>
 
-<pre><code>constexpr bool std::ascii:iscntrl(char c) noexcept;
-constexpr bool std::ascii:iscntrl(wchar_t c) noexcept;
-constexpr bool std::ascii:iscntrl(char16_t c) noexcept;
-constexpr bool std::ascii:iscntrl(char32_t c) noexcept;
+<pre><code>constexpr bool std::ascii::iscntrl(char c) noexcept;
+constexpr bool std::ascii::iscntrl(wchar_t c) noexcept;
+constexpr bool std::ascii::iscntrl(char16_t c) noexcept;
+constexpr bool std::ascii::iscntrl(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>(c &gt;= 0 &amp;&amp; c &lt;= 31) || c == 127</code></p>
+<p><strong>Returns</strong>: <code>(c &gt;= 0 &amp;&amp; c &lt;= 31) || c == 127</code></p>
 
 <pre><code>constexpr bool std::ascii::isascii(char c) noexcept;
 constexpr bool std::ascii::isascii(wchar_t c) noexcept;
@@ -179,14 +179,14 @@ constexpr bool std::ascii::isascii(char16_t c) noexcept;
 constexpr bool std::ascii::isascii(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>true</code> if <code>c &gt;= 0 &amp;&amp; c &lt; 128</code></p>
+<p><strong>Returns</strong>: <code>true</code> if <code>c &gt;= 0 &amp;&amp; c &lt; 128</code></p>
 
 <h3>Notes about isascii()</h3>
 
 <p>POSIX defines <code>extern "C" int isascii(int c)</code> in the global namespace. As of POSIX.1-2008,
 <code>isascii</code> has been marked obsolete because they claim that it <em>"cannot be used portably in a localized application."</em>
-[<a href="#Austin_317">Austin_317</a>]. This function doesn't make sense if the current locale is not ascii compatible.
-On the other hand, our version <code>std::ascii::isascii()</code> is well defined because it assumes the input character is ascii compatible.</p>
+[<a href="#Austin_317">Austin_317</a>]. This function doesn't make sense if the current locale is not ASCII-compatible.
+On the other hand, our version <code>std::ascii::isascii()</code> is well defined because it assumes the input character is ASCII-compatible.</p>
 
 <h3>bool return type</h3>
 
@@ -194,7 +194,7 @@ On the other hand, our version <code>std::ascii::isascii()</code> is well define
 <code>int</code> as is done by the <code>&lt;cctype&gt;</code> functions. Returning <code>bool</code> is more natural and also
 makes these functions easier to use in generic code <em>(i.e. templates, overloading, predicate functors, generic algorithms, etc..)</em>.</p>
 
-<h2>Ascii Case Conversion</h2>
+<h2>ASCII Case Conversion</h2>
 
 <pre><code>constexpr char std::ascii::tolower(char c) noexcept;
 constexpr wchar_t std::ascii::tolower(wchar_t c) noexcept;
@@ -202,7 +202,7 @@ constexpr char16_t std::ascii::tolower(char16_t c) noexcept;
 constexpr char32_t std::ascii::tolower(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::isupper(c) ? c - 32 : c</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::isupper(c) ? c - 32 : c</code></p>
 
 <pre><code>constexpr char std::ascii::toupper(char c) noexcept;
 constexpr wchar_t std::ascii::toupper(wchar_t c) noexcept;
@@ -210,11 +210,11 @@ constexpr char16_t std::ascii::toupper(char16_t c) noexcept;
 constexpr char32_t std::ascii::toupper(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::islower(c) ? c + 32 : c</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::islower(c) ? c + 32 : c</code></p>
 
-<h2>Ascii digit char to int conversion (new)</h2>
+<h2>ASCII digit char-to-int conversion (new)</h2>
 
-<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isdigit(c) == true</code></p>
+<p><strong>Shared Pre-Conditions</strong>: The result is unspecified unless <code>std::ascii::isdigit(c) == true</code></p>
 
 <pre><code>constexpr int std::ascii::todigit(char c) noexcept;
 constexpr int std::ascii::todigit(wchar_t c) noexcept;
@@ -222,19 +222,19 @@ constexpr int std::ascii::todigit(char16_t c) noexcept;
 constexpr int std::ascii::todigit(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::isdigit(c) ? c - 48 : /* undefined */</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::isdigit(c) ? c - 48 : /* undefined */</code></p>
 
-<pre><code>constexpr int todigit(char c, int m) noexcept;
-constexpr int todigit(wchar_t c, int m) noexcept;
-constexpr int todigit(char16_t c, int m) noexcept;
-constexpr int todigit(char32_t c, int m) noexcept;
+<pre><code>constexpr int std::ascii::todigit(char c, int m) noexcept;
+constexpr int std::ascii::todigit(wchar_t c, int m) noexcept;
+constexpr int std::ascii::todigit(char16_t c, int m) noexcept;
+constexpr int std::ascii::todigit(char32_t c, int m) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::todigit(c) * m</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::todigit(c) * m</code></p>
 
-<h2>Ascii hex digit char to int conversion (new)</h2>
+<h2>ASCII hex digit char-to-int conversion (new)</h2>
 
-<p><strong>Shared Pre-Conditions</strong>: The result is undefined unless <code>std::ascii::isxdigit(c) == true</code></p>
+<p><strong>Shared Pre-Conditions</strong>: The result is unspecified unless <code>std::ascii::isxdigit(c) == true</code></p>
 
 <pre><code>constexpr int std::ascii::toxdigit(char c) noexcept;
 constexpr int std::ascii::toxdigit(wchar_t c) noexcept;
@@ -242,7 +242,7 @@ constexpr int std::ascii::toxdigit(char16_t c) noexcept;
 constexpr int std::ascii::toxdigit(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>return (c &gt;= 97 &amp;&amp; c &lt;= 102) ? return c - 97 : ((c &gt;= 65 &amp;&amp; c &lt;= 70) ? c - 65 : todigit(c));</code></p>
+<p><strong>Returns</strong>: <code>return (c &gt;= 97 &amp;&amp; c &lt;= 102) ? return c - 97 : ((c &gt;= 65 &amp;&amp; c &lt;= 70) ? c - 65 : todigit(c));</code></p>
 
 <pre><code>constexpr int std::ascii::toxdigit(char c, int m) noexcept;
 constexpr int std::ascii::toxdigit(wchar_t c, int m) noexcept;
@@ -250,7 +250,7 @@ constexpr int std::ascii::toxdigit(char16_t c, int m) noexcept;
 constexpr int std::ascii::toxdigit(char32_t c, int m) noexcept;
 </code></pre>
 
-<p><strong>Return</strong>: <code>std::ascii::toxdigit(c) * m</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::toxdigit(c) * m</code></p>
 
 <h1>Example Usage</h1>
 
@@ -266,7 +266,7 @@ assert(m == 5);
 assert(d == 17);
 </code></pre>
 
-<p>Converting an ascii string to upper case:</p>
+<p>Converting an ASCII string to upper case:</p>
 
 <pre><code>std::string s = "abcdefghi";
 std::transform(s.begin(), s.end(), std::ascii::toupper);
@@ -282,32 +282,33 @@ assert(h == 0xF04E);
 <h1>Discussion about wchar_t</h1>
 
 <p>The type <code>wchar_t</code> posts somewhat of a problem. All of these functions are designed for processing data
-which comes from platform agnostic sources. For example a file or network socket.
+which comes from platform-agnostic sources. For example a file or network socket.
 Most often, we would use <code>char</code>, <code>char16_t</code>, or <code>char32_t</code> to process such data.
 In the case of <code>wchar_t</code>, we don't know its size or default encoding on the system. Therefore we would 
-only use it for platform specific sources such as string literals and file system paths.</p>
+only use it for platform-specific sources such as string literals and file system paths.</p>
 
-<p>On systems such as windows, where <code>wchar_t</code> happens to be using an ascii compatible encoding, these
-functions are useful. On other systems, they are not useful at all and their presense could even
+<p>On systems such as Windows, where <code>wchar_t</code> happens to be using an ASCII-compatible encoding (UTF-16), these
+functions are useful. On other systems, they are not useful at all and their presence could even
 be misleading. We have opted to include the <code>wchar_t</code> overloads in this proposal. Should the
-standard committee decide that <code>wchar_t</code> is a bad idea we will happily drop support for it.</p>
+Standard Committee decide that <code>wchar_t</code> support in this proposal is a bad idea we will happily drop support for it.</p>
 
 <h1>Use Cases</h1>
 
 <ul>
 <li>Date/Time string parsing</li>
-<li>Ascii text file parsers</li>
-<li>Csv file parsers</li>
-<li>Implementing user defined literals</li>
-<li>Faster character to int converstions</li>
+<li>ASCII text file parsers</li>
+<li>CSV file parsers</li>
+<li>Implementing user-defined literals</li>
+<li>Faster character to int conversions</li>
 <li>Loading and parsing large text based datasets</li>
 </ul>
 
 <h1>Acknowledgments</h1>
 
 <ul>
-<li>Thank you to everyone one the std proposals forum.</li>
+<li>Thank you to everyone one the std-proposals forum.</li>
 <li>Special thanks to Thiago Macieira for pointing out the issues related to <code>wchar_t</code>.</li>
+<li>Thank you to Melissa Mears for proof reading this paper.</li>
 </ul>
 
 <h1>References</h1>
