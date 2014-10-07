@@ -4,7 +4,7 @@
 <li>Document Number: NXXXX</li>
 <li>Date: 2014-08-20</li>
 <li>Programming Language C++, Library Evolution Working Group</li>
-<li>Reply-to: Matthew Fioravante <a href="&#109;ai&#108;&#x74;o:&#102;&#109;&#x61;&#116;&#x74;&#x68;&#101;&#x77;&#x35;8&#x37;&#x36;&#64;&#103;&#x6D;&#x61;&#x69;&#x6C;&#x2E;&#99;&#x6F;&#109;">&#102;&#109;&#x61;&#116;&#x74;&#x68;&#101;&#x77;&#x35;8&#x37;&#x36;&#64;&#103;&#x6D;&#x61;&#x69;&#x6C;&#x2E;&#99;&#x6F;&#109;</a></li>
+<li>Reply-to: Matthew Fioravante <a href="&#x6D;&#x61;&#105;&#108;&#116;&#x6F;:&#102;&#x6D;&#97;&#116;&#116;&#x68;&#x65;&#119;&#53;&#x38;&#55;&#54;&#64;&#x67;&#x6D;&#x61;&#x69;&#x6C;&#46;&#x63;&#x6F;&#109;">&#102;&#x6D;&#97;&#116;&#116;&#x68;&#x65;&#119;&#53;&#x38;&#55;&#54;&#64;&#x67;&#x6D;&#x61;&#x69;&#x6C;&#46;&#x63;&#x6F;&#109;</a></li>
 </ul>
 
 <p>The latest draft, reference header, and links to past discussions on Github: </p>
@@ -26,7 +26,7 @@ checking and converting ASCII characters.</p>
 It adds a new header <code>&lt;ascii&gt;</code> (alternatively reuse <code>&lt;cctype&gt;</code>) with
 a new namespace <code>std::ascii</code>. It adds a set of <code>constexpr</code>
 <code>noexcept</code> free functions which mirror <code>int isspace(int ch)</code>
-functions in <code>&lt;cctype&gt;</code>. Finally, this paper also adds two
+functions in <code>&lt;cctype&gt;</code>. Finally, this paper also adds two new
 character digit-to-int conversion functions to the <code>std::ascii</code> namespace.</p>
 
 <h1>Impact on Implementations</h1>
@@ -56,14 +56,15 @@ Calling the equivalent of a virtual
 function for every character is simply unacceptable for any high-performance parsing routine.</p>
 
 <p>Most crucially, dynamic dispatch prohibits inlining.
-On most platforms, a few comparisons is much cheaper than even a direct function call.
+On most platforms, a few comparisons or a table lookup is much cheaper than even a direct function call.
 Inlining also allows for the possibility of automatic vectorization by an optimizer.
-The <code>&lt;cctype&gt;</code> functions can never be <code>constexpr</code>.
+In addition, the <code>&lt;cctype&gt;</code> functions can never be <code>constexpr</code>.
 Finally, there are also times when we want consistency regardless of the global locale setting.</p>
 
 <p>We propose an additional set of character functions which mirror
 the functions in <code>&lt;cctype&gt;</code> but are placed in the <code>std::ascii</code>
-namespace. We also propose two additional useful functions:
+namespace. We also propose two additional useful functions for
+converting ascii digit characters into integers:
 <code>todigit</code> and <code>toxdigit</code>. While one can easily implement these methods
 themselves, it is tedious and error-prone to do so.</p>
 
@@ -222,7 +223,7 @@ constexpr int std::ascii::todigit(char16_t c) noexcept;
 constexpr int std::ascii::todigit(char32_t c) noexcept;
 </code></pre>
 
-<p><strong>Returns</strong>: <code>std::ascii::isdigit(c) ? c - 48 : /* undefined */</code></p>
+<p><strong>Returns</strong>: <code>std::ascii::isdigit(c) ? c - 48 : /* unspecified */</code></p>
 
 <pre><code>constexpr int std::ascii::todigit(char c, int m) noexcept;
 constexpr int std::ascii::todigit(wchar_t c, int m) noexcept;
@@ -290,7 +291,7 @@ only use it for platform-specific sources such as string literals and file syste
 <p>On systems such as Windows, where <code>wchar_t</code> happens to be using an ASCII-compatible encoding (UTF-16), these
 functions are useful. On other systems, they are not useful at all and their presence could even
 be misleading. We have opted to include the <code>wchar_t</code> overloads in this proposal. Should the
-Standard Committee decide that <code>wchar_t</code> support in this proposal is a bad idea we will happily drop support for it.</p>
+Standards Committee decide that <code>wchar_t</code> support in this proposal is a bad idea we will happily drop support for it.</p>
 
 <h1>Use Cases</h1>
 
@@ -308,7 +309,7 @@ Standard Committee decide that <code>wchar_t</code> support in this proposal is 
 <ul>
 <li>Thank you to everyone one the std-proposals forum.</li>
 <li>Special thanks to Thiago Macieira for pointing out the issues related to <code>wchar_t</code>.</li>
-<li>Thank you to Melissa Mears for proof reading this paper.</li>
+<li>Thank you to Melissa Mears for proofreading this paper.</li>
 </ul>
 
 <h1>References</h1>
