@@ -25,7 +25,7 @@ This proposal is a pure library extension.
 It adds a new header `<ascii>` (alternatively reuse `<cctype>`) with
 a new namespace `std::ascii`. It adds a set of `constexpr`
 `noexcept` free functions which mirror `int isspace(int ch)`
-functions in `<cctype>`. Finally, this paper also adds 2
+functions in `<cctype>`. Finally, this paper also adds two
 character digit-to-int conversion functions to the `std::ascii` namespace.
 
 Impact on Implementations
