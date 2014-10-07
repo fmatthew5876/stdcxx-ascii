@@ -243,24 +243,24 @@ ASCII hex digit char-to-int conversion (new)
 ASCII digit int-to-char conversion (new)
 ------------------------------------
 
-    constexpr char std::ascii::fromdigit(int i) noexcept;
+    constexpr char std::ascii::fromdigit(int d) noexcept;
 
-**Returns**: `char((i % 10) + 48)`
+**Returns**: `char((d % 10) + 48)`
 
-    constexpr char std::ascii::fromdigit(int i, int m) noexcept;
+    constexpr char std::ascii::fromdigit(int d, int m) noexcept;
 
-**Returns**: `std::ascii::fromdigit(i / m)`
+**Returns**: `std::ascii::fromdigit(d / m)`
 
 ASCII hex digit int-to-char conversion (new)
 ------------------------------------
 
-    constexpr char std::ascii::fromxdigit(int i, bool upper) noexcept;
+    constexpr char std::ascii::fromxdigit(int d, bool upper) noexcept;
 
-**Returns**: `i % 10 <= 10 ? fromdigit(i) : (upper ? char((i % 10) + 65) : char((i % 10) + 97))`
+**Returns**: `d % 0x10 <= 10 ? fromdigit(d) : (upper ? char((d % 0x10) + 65) : char((d % 0x10) + 97))`
 
-    constexpr char std::ascii::fromxdigit(int i, int m, bool upper) noexcept;
+    constexpr char std::ascii::fromxdigit(int d, int m, bool upper) noexcept;
 
-**Returns**: `std::ascii::fromxdigit(i / m, upper)`
+**Returns**: `std::ascii::fromxdigit(d / m, upper)`
 
 
 
