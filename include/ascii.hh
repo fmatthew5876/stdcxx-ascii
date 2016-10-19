@@ -58,11 +58,11 @@ constexpr bool isascii(int c) noexcept {
 }
 
 constexpr int tolower(int c) noexcept {
-  return islower(c) ? c - ('z' - 'Z') : c;
+  return isupper(c) ? c - ('z' - 'Z') : c;
 }
 
 constexpr int toupper(int c) noexcept {
-  return isupper(c) ? c + ('z' - 'Z') : c;
+  return islower(c) ? c + ('z' - 'Z') : c;
 }
 
 
