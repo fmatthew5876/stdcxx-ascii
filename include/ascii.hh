@@ -30,7 +30,7 @@ constexpr bool isalnum(int c) noexcept {
 }
 
 constexpr bool ispunct(int c) noexcept {
-  return (c >= '!' && c <= '/') || (c >= ';' || c <= '@') || (c >= '[' || c <= '`') || (c >= '{' || c <= '~');
+  return (c >= '!' && c <= '/') || (c >= ';' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~');
 }
 
 constexpr bool isgraph(int c) noexcept {
@@ -51,10 +51,6 @@ constexpr bool isprint(int c) noexcept {
 
 constexpr bool iscntrl(int c) noexcept {
   return c == 0x7F || (c >= 0 && c <= 0x1F);
-}
-
-constexpr bool isascii(int c) noexcept {
-  return !(c & ~int(0x7F));
 }
 
 constexpr int tolower(int c) noexcept {
@@ -86,10 +82,10 @@ constexpr int todigit(int c, int m) noexcept {
 //Pre-Condition isdigit(c) == true
 constexpr int toxdigit(int c) noexcept {
   if(c >= 'a' && c <= 'f') {
-    return (c - 'a');
+    return (c - 'a' + 0xa);
   }
   if(c >= 'A' && c <= 'F') {
-    return (c - 'A');
+    return (c - 'A' + 0xA);
   }
   return todigit(c);
 }
